@@ -32,13 +32,13 @@ data "template_file" "bucket_policy" {
   template = file("${path.module}/website_redirect_bucket_policy.json")
 
   vars = {
-    bucket = "site.${replace(replace(var.domain, ".", "-"), "*", "star")}"
+    bucket = var.bucket_name
     secret = var.duplicate-content-penalty-secret
   }
 }
 
 resource "aws_s3_bucket" "website_bucket" {
-  bucket = "site.${replace(replace(var.domain, ".", "-"), "*", "star")}"
+  bucket = var.bucket_name
   policy = data.template_file.bucket_policy.rendered
 
   website {
@@ -60,14 +60,14 @@ data "template_file" "deployer_role_policy_file" {
   template = file("${path.module}/deployer_role_policy.json")
 
   vars = {
-    bucket = "site.${replace(replace(var.domain, ".", "-"), "*", "star")}"
+    bucket = var.bucket_name
   }
 }
 
 resource "aws_iam_policy" "site_deployer_policy" {
   count = var.deployer != null ? 1 : 0
 
-  name        = "site.${replace(replace(var.domain, ".", "-"), "*", "star")}.deployer"
+  name        = "${var.bucket_name}.deployer"
   path        = "/"
   description = "Policy allowing to publish a new version of the website to the S3 bucket"
   policy      = data.template_file.deployer_role_policy_file.rendered
@@ -76,7 +76,7 @@ resource "aws_iam_policy" "site_deployer_policy" {
 resource "aws_iam_policy_attachment" "staging-site-deployer-attach-user-policy" {
   count = var.deployer != null ? 1 : 0
 
-  name       = "site.${replace(replace(var.domain, ".", "-"), "*", "star")}-deployer-policy-attachment"
+  name       = "${var.bucket_name}-deployer-policy-attachment"
   users      = [var.deployer]
   policy_arn = aws_iam_policy.site_deployer_policy.0.arn
 }

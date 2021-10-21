@@ -48,10 +48,13 @@ resource "aws_s3_bucket" "website_bucket" {
     routing_rules  = var.routing_rules
   }
 
-  //  logging {
-  //    target_bucket = "${var.log_bucket}"
-  //    target_prefix = "${var.log_bucket_prefix}"
-  //  }
+  tags = local.tags
+}
+
+resource "aws_s3_bucket" "logging_bucket" {
+  bucket        = var.logging_bucket_name
+  acl           = "log-delivery-write"
+  force_destroy = var.force_destroy
 
   tags = local.tags
 }
@@ -117,6 +120,11 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     error_caching_min_ttl = "360"
     response_code         = var.not-found-response-code
     response_page_path    = var.not-found-response-path
+  }
+
+  logging_config {
+    include_cookies = true
+    bucket          = aws_s3_bucket.logging_bucket.bucket_domain_name
   }
 
   default_cache_behavior {
