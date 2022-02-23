@@ -149,6 +149,15 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     // This redirects any HTTP request to HTTPS. Security first!
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
+
+    dynamic "lambda_function_association" {
+      for_each = var.request_function_arn ? [1] : []
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = "${var.request_function_arn}"
+        include_body = false
+      }
+    }
   }
 
   restrictions {
@@ -161,15 +170,6 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     acm_certificate_arn      = var.acm-certificate-arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = var.minimum_client_tls_protocol_version
-  }
-
-  dynamic "lambda_function_association" {
-    for_each = var.request_function_arn ? [1] : []
-    content {
-      event_type   = "viewer-request"
-      lambda_arn   = "${var.request_function_arn}"
-      include_body = false
-    }
   }
 
   aliases = [var.domain]
