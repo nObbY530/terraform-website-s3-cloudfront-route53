@@ -151,7 +151,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     compress               = true
 
     dynamic "lambda_function_association" {
-      for_each = var.request_function_arn ? [1] : []
+      for_each = var.request_function_arn == null ? [1] : []
       content {
         event_type   = "viewer-request"
         lambda_arn   = "${var.request_function_arn}"
