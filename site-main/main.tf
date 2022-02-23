@@ -163,6 +163,15 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     minimum_protocol_version = var.minimum_client_tls_protocol_version
   }
 
+  dynamic "lambda_function_association" {
+    for_each = var.request_function_arn ? [1] : []
+    content {
+      event_type   = "viewer-request"
+      lambda_arn   = "${var.request_function_arn}"
+      include_body = false
+    }
+  }
+
   aliases = [var.domain]
   tags    = local.tags
 }

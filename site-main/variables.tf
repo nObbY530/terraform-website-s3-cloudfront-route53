@@ -29,6 +29,11 @@ variable "deployer" {
   default = null
 }
 
+variable "request_function_arn" {
+  type    = string
+  default = null
+}
+
 variable "routing_rules" {
   type    = string
   default = ""
