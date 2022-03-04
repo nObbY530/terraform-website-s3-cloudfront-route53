@@ -39,18 +39,22 @@ data "template_file" "bucket_policy" {
 
 resource "aws_s3_bucket" "website_bucket" {
   bucket = var.bucket_name
-  policy = data.template_file.bucket_policy.rendered
-
-  website {
-    redirect_all_requests_to = "https://${var.target}"
-  }
-
-  //  logging {
-  //    target_bucket = "${var.log_bucket}"
-  //    target_prefix = "${var.log_bucket_prefix}"
-  //  }
 
   tags = local.tags
+}
+
+resource "aws_s3_bucket_website_configuration" "website_bucket_website_configuration" {
+  bucket = aws_s3_bucket.website_bucket.id
+  
+  redirect_all_requests_to {
+    redirect = var.target
+    protocol = "https"
+  }
+}
+
+resource "aws_s3_bucket_policy" "website_bucket_policy" {
+  bucket = aws_s3_bucket.website_bucket.id
+  policy = data.template_file.bucket_policy.rendered
 }
 
 ################################################################################################################

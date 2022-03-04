@@ -34,11 +34,6 @@ variable "request_function_arn" {
   default = null
 }
 
-variable "routing_rules" {
-  type    = string
-  default = ""
-}
-
 variable "default-root-object" {
   type    = string
   default = "index.html"

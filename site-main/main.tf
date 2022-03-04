@@ -42,21 +42,36 @@ resource "aws_s3_bucket" "website_bucket" {
   policy        = data.template_file.bucket_policy.rendered
   force_destroy = var.force_destroy
 
-  website {
-    index_document = "index.html"
-    error_document = "404.html"
-    routing_rules  = var.routing_rules
+  tags = local.tags
+}
+
+resource "aws_s3_bucket_website_configuration" "website_bucket_website_configuration" {
+  bucket = aws_s3_bucket.website_bucket.id
+
+  index_document {
+    suffix = "index.html"
   }
 
-  tags = local.tags
+  error_document {
+    key = "404.html"
+  }
+}
+
+resource "aws_s3_bucket_policy" "website_bucket_policy" {
+  bucket = aws_s3_bucket.website_bucket.id
+  policy = data.template_file.bucket_policy.rendered
 }
 
 resource "aws_s3_bucket" "logging_bucket" {
   bucket        = var.logging_bucket_name
-  acl           = "log-delivery-write"
   force_destroy = var.force_destroy
 
   tags = local.tags
+}
+
+resource "aws_s3_bucket_acl" "logging_bucket_acl" {
+  bucket = aws_s3_bucket.logging_bucket.id
+  acl    = "log-delivery-write"
 }
 
 ################################################################################################################
