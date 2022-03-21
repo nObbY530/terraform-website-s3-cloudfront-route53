@@ -61,18 +61,6 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
   policy = data.template_file.bucket_policy.rendered
 }
 
-resource "aws_s3_bucket" "logging_bucket" {
-  bucket        = var.logging_bucket_name
-  force_destroy = var.force_destroy
-
-  tags = local.tags
-}
-
-resource "aws_s3_bucket_acl" "logging_bucket_acl" {
-  bucket = aws_s3_bucket.logging_bucket.id
-  acl    = "log-delivery-write"
-}
-
 ################################################################################################################
 ## Configure the credentials and access to the bucket for a deployment user
 ################################################################################################################
