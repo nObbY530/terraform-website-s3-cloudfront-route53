@@ -16,6 +16,10 @@ variable "logging_bucket_name" {
   description = "The name of the S3 bucket to use for logging."
 }
 
+variable "logging_bucket_prefix" {
+  type        = string
+}
+
 variable "duplicate-content-penalty-secret" {
   type = string
 }

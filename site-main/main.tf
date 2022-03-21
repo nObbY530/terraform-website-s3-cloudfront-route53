@@ -136,10 +136,14 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     response_page_path    = var.not-found-response-path
   }
 
-  logging_config {
-    include_cookies = true
-    bucket          = aws_s3_bucket.logging_bucket.bucket_domain_name
-  }
+  dynamic "logging_config" {
+      for_each = var.logging_bucket_name == null ? [] : [1]
+      content {
+        include_cookies = true
+        bucket          = var.logging_bucket_name
+        prefix          = var.logging_bucket_prefix
+      }
+    }
 
   default_cache_behavior {
     allowed_methods = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
