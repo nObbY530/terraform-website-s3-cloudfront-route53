@@ -56,6 +56,14 @@ resource "aws_s3_bucket_website_configuration" "website_bucket_website_configura
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "ownership" {
+  bucket = aws_s3_bucket.website_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
 resource "aws_s3_bucket_policy" "website_bucket_policy" {
   bucket = aws_s3_bucket.website_bucket.id
   policy = data.template_file.bucket_policy.rendered
