@@ -69,6 +69,33 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
   policy = data.template_file.bucket_policy.rendered
 }
 
+resource "aws_s3_bucket" "logs" {
+  bucket = var.logging_bucket_name
+}
+
+resource "aws_s3_bucket_acl" "logs" {
+  bucket = var.logging_bucket_name
+  acl    = "log-delivery-write"
+}
+
+
+resource "aws_s3_bucket_public_access_block" "logs" {
+  bucket = var.logging_bucket_name
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "logs" {
+  bucket = var.logging_bucket_name
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 ################################################################################################################
 ## Configure the credentials and access to the bucket for a deployment user
 ################################################################################################################
@@ -132,12 +159,10 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     response_page_path    = var.not-found-response-path
   }
 
-  dynamic "logging_config" {
-    for_each = var.logging_bucket_name == null ? [] : [1]
+  logging_config {
     content {
       include_cookies = true
       bucket          = "${var.logging_bucket_name}.s3.amazonaws.com"
-      prefix          = var.logging_bucket_prefix
     }
   }
 
