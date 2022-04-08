@@ -160,10 +160,8 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   }
 
   logging_config {
-    content {
-      include_cookies = true
-      bucket          = "${var.logging_bucket_name}.s3.amazonaws.com"
-    }
+    include_cookies = true
+    bucket          = "${var.logging_bucket_name}.s3.amazonaws.com"
   }
 
   default_cache_behavior {
