@@ -71,6 +71,9 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
 
 resource "aws_s3_bucket" "logs" {
   bucket = var.logging_bucket_name
+  force_destroy = var.force_destroy
+
+  tags = local.tags
 }
 
 resource "aws_s3_bucket_acl" "logs" {
