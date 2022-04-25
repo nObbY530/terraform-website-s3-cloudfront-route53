@@ -77,13 +77,26 @@ resource "aws_s3_bucket" "logs" {
 }
 
 resource "aws_s3_bucket_acl" "logs" {
-  bucket = var.logging_bucket_name
+  bucket = aws_s3_bucket.logs.id
   acl    = "log-delivery-write"
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
+  bucket = aws_s3_bucket.logs.id
+
+  rule {
+    id = "expire"
+
+    expiration {
+      days = 90
+    }
+
+    status = "Enabled"
+  }
+}
 
 resource "aws_s3_bucket_public_access_block" "logs" {
-  bucket = var.logging_bucket_name
+  bucket = aws_s3_bucket.logs.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -92,7 +105,7 @@ resource "aws_s3_bucket_public_access_block" "logs" {
 }
 
 resource "aws_s3_bucket_ownership_controls" "logs" {
-  bucket = var.logging_bucket_name
+  bucket = aws_s3_bucket.logs.id
 
   rule {
     object_ownership = "BucketOwnerPreferred"
@@ -164,7 +177,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
 
   logging_config {
     include_cookies = true
-    bucket          = "${var.logging_bucket_name}.s3.amazonaws.com"
+    bucket          = "${aws_s3_bucket.logs.id}.s3.amazonaws.com"
   }
 
   default_cache_behavior {
