@@ -81,7 +81,7 @@ resource "aws_s3_bucket_acl" "logs" {
   acl    = "log-delivery-write"
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
+resource "aws_s3_bucket_lifecycle_configuration" "logs" {
   bucket = aws_s3_bucket.logs.id
 
   rule {
