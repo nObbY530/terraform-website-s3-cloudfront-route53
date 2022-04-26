@@ -171,10 +171,10 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     domain_name = var.tracking-domain != null ? var.tracking-domain : aws_s3_bucket_website_configuration.website_bucket_website_configuration.website_endpoint
 
     custom_origin_config {
-      origin_protocol_policy = "https-only"
       http_port              = "8000"
       https_port             = "8000"
-      origin_ssl_protocols   = ["TLSv1"]
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = ["TLSv1.2"]
     }
   }
 
