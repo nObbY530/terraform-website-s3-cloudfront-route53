@@ -172,8 +172,8 @@ resource "aws_cloudfront_distribution" "website_cdn" {
 
     custom_origin_config {
       origin_protocol_policy = "https-only"
-      http_port              = "80"
-      https_port             = "443"
+      http_port              = "8000"
+      https_port             = "8000"
       origin_ssl_protocols   = ["TLSv1"]
     }
   }
@@ -257,12 +257,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
         forward = "all"
       }
 
-      headers = [
-        "User-Agent",
-        "Referer",
-        "Origin",
-        "X-Forwarded-For"
-      ]
+      headers = ["*"]
     }
   }
 
