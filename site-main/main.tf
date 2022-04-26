@@ -245,7 +245,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   ordered_cache_behavior {
     path_pattern     = "/api/event"
     allowed_methods = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = []
+    cached_methods   = ["GET", "HEAD"]
     viewer_protocol_policy = "https-only"
     target_origin_id = "tracker"
     compress = true
