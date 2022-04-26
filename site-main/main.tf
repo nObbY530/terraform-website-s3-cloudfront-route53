@@ -166,6 +166,18 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     }
   }
 
+  origin {
+    origin_id   = "tracker"
+    domain_name = var.tracking-domain != null ? var.tracking-domain : aws_s3_bucket_website_configuration.website_bucket_website_configuration.website_endpoint
+
+    custom_origin_config {
+      origin_protocol_policy = "https-only"
+      http_port              = "80"
+      https_port             = "443"
+      origin_ssl_protocols   = ["TLSv1"]
+    }
+  }
+
   default_root_object = var.default-root-object
 
   custom_error_response {
@@ -210,6 +222,39 @@ resource "aws_cloudfront_distribution" "website_cdn" {
         lambda_arn   = "${var.request_function_arn}"
         include_body = false
       }
+    }
+  }
+
+  ordered_cache_behavior {
+    path_pattern     = "/js/script.*"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = []
+    viewer_protocol_policy = "https-only"
+    target_origin_id = "tracker"
+    compress = true
+  }
+
+  ordered_cache_behavior {
+    path_pattern     = "/api/event"
+    allowed_methods = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = []
+    viewer_protocol_policy = "https-only"
+    target_origin_id = "tracker"
+    compress = true
+
+    forwarded_values {
+      query_string = true
+
+      cookies {
+        forward = "all"
+      }
+
+      headers = [
+        "User-Agent",
+        "Referer",
+        "Origin",
+        "X-Forwarded-For"
+      ]
     }
   }
 
