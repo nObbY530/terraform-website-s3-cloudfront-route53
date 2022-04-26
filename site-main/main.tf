@@ -232,6 +232,17 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     viewer_protocol_policy = "https-only"
     target_origin_id = "tracker"
     compress = true
+
+    forwarded_values {
+      query_string = false
+
+      headers = [
+        "User-Agent",
+        "Referer",
+        "Origin",
+        "X-Forwarded-For"
+      ]
+    }
   }
 
   ordered_cache_behavior {
