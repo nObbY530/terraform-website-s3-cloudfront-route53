@@ -228,7 +228,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   ordered_cache_behavior {
     path_pattern     = "/js/script.*"
     allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = []
+    cached_methods   = ["GET", "HEAD"]
     viewer_protocol_policy = "https-only"
     target_origin_id = "tracker"
     compress = true
