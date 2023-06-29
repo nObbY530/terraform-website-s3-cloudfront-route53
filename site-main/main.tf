@@ -62,6 +62,8 @@ resource "aws_s3_bucket_ownership_controls" "ownership" {
   rule {
     object_ownership = "BucketOwnerEnforced"
   }
+
+  depends_on = [aws_s3_bucket_public_access_block.logs]
 }
 
 resource "aws_s3_bucket_policy" "website_bucket_policy" {
@@ -79,6 +81,8 @@ resource "aws_s3_bucket" "logs" {
 resource "aws_s3_bucket_acl" "logs" {
   bucket = aws_s3_bucket.logs.id
   acl    = "log-delivery-write"
+
+  depends_on = [aws_s3_bucket_ownership_controls.logs]
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "logs" {
@@ -178,18 +182,6 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     }
   }
 
-  origin {
-    origin_id   = "strapi"
-    domain_name = var.strapi-domain != null ? var.strapi-domain : aws_s3_bucket_website_configuration.website_bucket_website_configuration.website_endpoint
-
-    custom_origin_config {
-      http_port              = "80"
-      https_port             = "443"
-      origin_protocol_policy = "match-viewer"
-      origin_ssl_protocols = ["TLSv1.2"]
-    }
-  }
-
   default_root_object = var.default-root-object
 
   custom_error_response {
@@ -260,25 +252,6 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     cached_methods   = ["GET", "HEAD"]
     viewer_protocol_policy = "https-only"
     target_origin_id = "tracker"
-    compress = true
-
-    forwarded_values {
-      query_string = true
-
-      cookies {
-        forward = "all"
-      }
-
-      headers = ["*"]
-    }
-  }
-
-  ordered_cache_behavior {
-    path_pattern     = "/api/*"
-    allowed_methods = ["HEAD", "POST"]
-    cached_methods   = ["HEAD"]
-    viewer_protocol_policy = "https-only"
-    target_origin_id = "strapi"
     compress = true
 
     forwarded_values {
