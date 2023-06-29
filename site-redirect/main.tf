@@ -57,6 +57,35 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
   policy = data.template_file.bucket_policy.rendered
 }
 
+
+
+resource "aws_s3_bucket_ownership_controls" "website" {
+  bucket = aws_s3_bucket.website_bucket.id
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "website" {
+  bucket = aws_s3_bucket.website_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "website" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.website,
+    aws_s3_bucket_public_access_block.website,
+  ]
+
+  bucket = aws_s3_bucket.website_bucket.id
+  acl    = "public-read"
+}
+
+
 ################################################################################################################
 ## Configure the credentials and access to the bucket for a deployment user
 ################################################################################################################
