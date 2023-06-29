@@ -69,6 +69,8 @@ resource "aws_s3_bucket_ownership_controls" "ownership" {
 resource "aws_s3_bucket_policy" "website_bucket_policy" {
   bucket = aws_s3_bucket.website_bucket.id
   policy = data.template_file.bucket_policy.rendered
+
+  depends_on = [aws_s3_bucket_public_access_block.logs]
 }
 
 resource "aws_s3_bucket" "logs" {
