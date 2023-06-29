@@ -154,7 +154,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     domain_name = aws_s3_bucket_website_configuration.website_bucket_website_configuration.website_endpoint
 
     custom_origin_config {
-      origin_protocol_policy = "http-only"
+      origin_protocol_policy = "match-viewer"
       http_port              = "80"
       https_port             = "443"
       origin_ssl_protocols   = ["TLSv1"]
@@ -174,6 +174,18 @@ resource "aws_cloudfront_distribution" "website_cdn" {
       http_port              = "8000"
       https_port             = "8000"
       origin_protocol_policy = "http-only"
+      origin_ssl_protocols = ["TLSv1.2"]
+    }
+  }
+
+  origin {
+    origin_id   = "strapi"
+    domain_name = var.strapi-domain != null ? var.strapi-domain : aws_s3_bucket_website_configuration.website_bucket_website_configuration.website_endpoint
+
+    custom_origin_config {
+      http_port              = "80"
+      https_port             = "443"
+      origin_protocol_policy = "match-viewer"
       origin_ssl_protocols = ["TLSv1.2"]
     }
   }
@@ -248,6 +260,25 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     cached_methods   = ["GET", "HEAD"]
     viewer_protocol_policy = "https-only"
     target_origin_id = "tracker"
+    compress = true
+
+    forwarded_values {
+      query_string = true
+
+      cookies {
+        forward = "all"
+      }
+
+      headers = ["*"]
+    }
+  }
+
+  ordered_cache_behavior {
+    path_pattern     = "/api/*"
+    allowed_methods = ["HEAD", "POST"]
+    cached_methods   = ["HEAD"]
+    viewer_protocol_policy = "https-only"
+    target_origin_id = "strapi"
     compress = true
 
     forwarded_values {
