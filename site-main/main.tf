@@ -40,7 +40,7 @@ data "template_file" "bucket_policy" {
 resource "aws_s3_bucket" "website_bucket" {
   bucket        = var.bucket_name
   force_destroy = var.force_destroy
-  acl = null
+  acl = "public-read"
 
   tags = local.tags
 }

@@ -39,7 +39,7 @@ data "template_file" "bucket_policy" {
 
 resource "aws_s3_bucket" "website_bucket" {
   bucket = var.bucket_name
-  acl = null
+  acl = "public-read"
 
   tags = local.tags
 }
