@@ -40,9 +40,34 @@ data "template_file" "bucket_policy" {
 resource "aws_s3_bucket" "website_bucket" {
   bucket        = var.bucket_name
   force_destroy = var.force_destroy
-  acl = "public-read"
 
   tags = local.tags
+}
+
+resource "aws_s3_bucket_acl" "website_bucket" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.website_bucket,
+    aws_s3_bucket_public_access_block.website_bucket,
+  ]
+
+  bucket = aws_s3_bucket.website_bucket.id
+  acl    = "public-read"
+}
+
+resource "aws_s3_bucket_ownership_controls" "website_bucket" {
+  bucket = aws_s3_bucket.website_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "website_bucket" {
+  bucket = aws_s3_bucket.website_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
 
 resource "aws_s3_bucket_website_configuration" "website_bucket_website_configuration" {
@@ -66,7 +91,7 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
 
 
 resource "aws_s3_bucket" "logs" {
-  bucket = var.logging_bucket_name
+  bucket        = var.logging_bucket_name
   force_destroy = var.force_destroy
 
   tags = local.tags
@@ -170,7 +195,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
       http_port              = "8000"
       https_port             = "8000"
       origin_protocol_policy = "http-only"
-      origin_ssl_protocols = ["TLSv1.2"]
+      origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
 
@@ -215,19 +240,19 @@ resource "aws_cloudfront_distribution" "website_cdn" {
       for_each = var.request_function_arn == null ? [] : [1]
       content {
         event_type   = "viewer-request"
-        lambda_arn   = "${var.request_function_arn}"
+        lambda_arn   = var.request_function_arn
         include_body = false
       }
     }
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/js/script.*"
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
+    path_pattern           = "/js/script.*"
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
     viewer_protocol_policy = "https-only"
-    target_origin_id = "tracker"
-    compress = true
+    target_origin_id       = "tracker"
+    compress               = true
 
     forwarded_values {
       query_string = false
@@ -239,12 +264,12 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/api/event"
-    allowed_methods = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
+    path_pattern           = "/api/event"
+    allowed_methods        = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
     viewer_protocol_policy = "https-only"
-    target_origin_id = "tracker"
-    compress = true
+    target_origin_id       = "tracker"
+    compress               = true
 
     forwarded_values {
       query_string = true

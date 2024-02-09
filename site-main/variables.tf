@@ -21,12 +21,12 @@ variable "duplicate-content-penalty-secret" {
 }
 
 variable "acm-certificate-arn" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "tracking-domain" {
-  type = string
+  type    = string
   default = null
 }
 
@@ -91,7 +91,7 @@ variable "minimum_client_tls_protocol_version" {
 }
 
 variable "force_destroy" {
-  type = bool
+  type        = bool
   description = "A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
-  default = false
+  default     = false
 }
