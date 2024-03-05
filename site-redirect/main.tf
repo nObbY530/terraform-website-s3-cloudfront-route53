@@ -43,6 +43,10 @@ resource "aws_s3_bucket" "website_bucket" {
   tags = local.tags
 }
 
+resource "aws_s3_bucket_website_configuration" "website_bucket" {
+  bucket = aws_s3_bucket.website_bucket.id
+}
+
 resource "aws_s3_bucket_acl" "website_bucket" {
   depends_on = [
     aws_s3_bucket_ownership_controls.website_bucket,
@@ -123,7 +127,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
 
   origin {
     origin_id   = "origin-bucket-${aws_s3_bucket.website_bucket.id}"
-    domain_name = aws_s3_bucket.website_bucket.website_endpoint
+    domain_name = aws_s3_bucket_website_configuration.website_bucket.website_endpoint
 
     custom_origin_config {
       origin_protocol_policy = "http-only"
