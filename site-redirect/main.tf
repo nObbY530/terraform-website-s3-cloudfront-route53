@@ -45,6 +45,10 @@ resource "aws_s3_bucket" "website_bucket" {
 
 resource "aws_s3_bucket_website_configuration" "website_bucket" {
   bucket = aws_s3_bucket.website_bucket.id
+
+  redirect_all_requests_to {
+    host_name = "https://${var.target}"
+  }
 }
 
 resource "aws_s3_bucket_acl" "website_bucket" {
